@@ -2776,10 +2776,10 @@
                                             <div className="text-center md:text-left flex-1 flex flex-col justify-center pt-0 md:pt-4">
                                                 <div className="flex items-center justify-center md:justify-start gap-4 mb-5">
                                                     <div className="flex items-center gap-2 px-4 py-1.5 bg-brand-light/10 border border-brand/30 text-brand-light rounded-sm text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm shadow-[0_0_20px_rgba(46,92,24,0.15)] select-none">
-                                                        <ShieldCheck size={14} className="text-brand" /> Oficialato CFO
+                                                        <ShieldCheck size={14} className="text-brand" /> CFO
                                                     </div>
                                                     <div className="h-4 w-px bg-white/20"></div>
-                                                    <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-mono select-none">v2.0</span>
+                                                    <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-mono select-none">Documento Oficial</span>
                                                 </div>
 
                                                 <h2 className="text-3xl md:text-6xl font-display text-white tracking-wide drop-shadow-lg mb-4 leading-none uppercase relative inline-block">
@@ -2787,7 +2787,7 @@
                                                 </h2>
 
                                                 <p className="text-slate-300 font-poppins text-sm md:text-md max-w-3xl leading-relaxed mx-auto md:mx-0">
-                                                    Repositório central de <strong className="text-white font-medium bg-brand/10 px-1">normas operacionais</strong> e diretrizes militares para a instrução avançada.
+                                                    Manual destinado aos <strong className="text-white font-medium bg-brand/10 px-1">professores</strong> do Centro de Formação de Oficiais reunindo as normas e diretrizes necessárias para a correta aplicação das disciplinas.
                                                 </p>
                                             </div>
                                         </div>
