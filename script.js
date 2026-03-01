@@ -1114,9 +1114,7 @@ const ContentRenderer = ({ blocks, onSkipWarning, currentUser, textZoom = 0 }) =
                                 <div className="flex flex-col gap-3">
                                     {block.items.map((item, idx) => (
                                         <div key={item.id} className={`${idx > 0 ? 'pt-3 border-t border-dashed border-slate-200 dark:border-white/10' : ''} flex gap-4 items-start`}>
-                                            {block.items.length > 1 && (
-                                                <div className="shrink-0 text-brand font-bold font-mono text-xs mt-1 bg-brand/10 w-5 h-5 flex flex-col items-center justify-center rounded-full leading-none">{idx + 1}</div>
-                                            )}
+                                            <div className="shrink-0 text-brand font-bold font-mono text-xs mt-0.5 bg-brand/10 w-5 h-5 flex flex-col items-center justify-center rounded-full leading-none">{idx + 1}</div>
                                             <div className={`flex-1 ${zoomClass} text-slate-600 dark:text-slate-300 font-medium leading-relaxed font-mono italic`}>
                                                 <RichText text={processText(item.content)} />
                                             </div>
@@ -1130,7 +1128,7 @@ const ContentRenderer = ({ blocks, onSkipWarning, currentUser, textZoom = 0 }) =
             case 'mlist':
                 return (
                     <div key={block.id} className="ml-4 md:ml-16 mb-2 flex items-start gap-3 group">
-                        <div className="mt-1.5 shrink-0 text-brand/60 group-hover:text-brand transition-colors"><CheckCircle2 size={16} /></div>
+                        <div className="mt-1 shrink-0 text-brand/60 group-hover:text-brand transition-colors"><CheckCircle2 size={16} /></div>
                         <p className={`${zoomClass} text-slate-700 dark:text-slate-300 leading-relaxed font-poppins group-hover:text-slate-900 dark:group-hover:text-white transition-colors text-justify flex-1`}>
                             <RichText text={processedContent} />
                         </p>
@@ -1681,11 +1679,11 @@ const ClassHistoryList = ({ currentUser }) => {
                             <tbody className="text-sm font-medium">
                                 {ranking.data.length > 0 ? (
                                     ranking.data.map((row, idx) => {
-                                        const isCurrentUserRow = currentUser && row.some(cell => typeof cell === 'string' && cell.toLowerCase() === currentUser.nickname.toLowerCase());
+                                        const isCurrentUserRow = currentUser && row.some(cell => typeof cell === 'string' && cell.trim().toLowerCase() === currentUser.nickname.trim().toLowerCase());
                                         return (
-                                            <tr key={idx} className={`group transition-colors border-b border-slate-100 dark:border-white/5 last:border-0 ${isCurrentUserRow ? 'bg-green-500/10 dark:bg-green-500/20 hover:bg-green-500/20 dark:hover:bg-green-500/30' : 'hover:bg-slate-50 dark:hover:bg-dark-hover'}`}>
+                                            <tr key={idx} className={`group transition-colors border-b border-slate-100 dark:border-white/5 last:border-0 ${isCurrentUserRow ? 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30' : 'hover:bg-slate-50 dark:hover:bg-dark-hover'}`}>
                                                 {row.map((cell, cIdx) => {
-                                                    const isNameCell = typeof cell === 'string' && currentUser && cell.toLowerCase() === currentUser.nickname.toLowerCase();
+                                                    const isNameCell = typeof cell === 'string' && currentUser && cell.trim().toLowerCase() === currentUser.nickname.trim().toLowerCase();
                                                     return (
                                                         <td key={cIdx} className={`px-6 py-4 font-medium ${isCurrentUserRow ? 'text-green-800 dark:text-green-300' : 'text-slate-600 dark:text-slate-300'}`}>
                                                             <div className="flex items-center gap-2">
