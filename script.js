@@ -1130,7 +1130,7 @@ const ContentRenderer = ({ blocks, onSkipWarning, currentUser, textZoom = 0 }) =
             case 'mlist':
                 return (
                     <div key={block.id} className="ml-4 md:ml-16 mb-2 flex items-start gap-3 group">
-                        <div className="mt-1 shrink-0 text-brand/60 group-hover:text-brand transition-colors"><CheckCircle2 size={16} /></div>
+                        <div className="mt-1.5 shrink-0 text-brand/60 group-hover:text-brand transition-colors"><CheckCircle2 size={16} /></div>
                         <p className={`${zoomClass} text-slate-700 dark:text-slate-300 leading-relaxed font-poppins group-hover:text-slate-900 dark:group-hover:text-white transition-colors text-justify flex-1`}>
                             <RichText text={processedContent} />
                         </p>
