@@ -248,16 +248,24 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
             try {
                 const rows = await fetchCSV(HISTORY_GID);
                 if (!rows || rows.length < 2) return [];
-                return rows.slice(1).map(row => ({
-                    endTime: row[0] || '',
-                    startTime: row[1] || '',
-                    className: row[2] || '',
-                    professor: row[4] || '',
-                    students: row[5] || '',
-                    mpSent: row[6] || '',
-                    verdict: row[8] || '',
-                    score: row[9] || ''
-                })).filter(entry => entry.className !== '');
+                return rows.slice(1).map(row => {
+                    let className = row[2] || '';
+                    const classType = row[3] || '';
+                    
+                    // Lógica para adicionar o tipo (Aula ou Atividade) se for ADM
+                    if (className === 'Administração e Tecnologia do Fórum' && classType) {
+                        className = `${className} - ${classType}`;
+                    }
+
+                    return {
+                        endTime: row[0] || '',
+                        startTime: row[1] || '',
+                        className: className,
+                        professor: row[4] || '',
+                        students: row[5] || '',
+                        verdict: row[8] || ''
+                    };
+                }).filter(entry => entry.className !== '');
             } catch (error) {
                 console.error("History Fetch Error:", error);
                 return [];
@@ -669,9 +677,9 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
             }, []);
 
             return (
-                <header className="h-14 lg:h-20 bg-white dark:bg-dark-surface shadow-md sticky top-0 z-[900] px-3 lg:px-8 flex items-center justify-between transition-colors duration-300 border-b-[3px] lg:border-b-4 border-brand">
+                <header className="h-14 lg:h-20 bg-white dark:bg-[#121813] shadow-md sticky top-0 z-[900] px-3 lg:px-8 flex items-center justify-between transition-colors duration-300 border-b-[3px] lg:border-b-4 border-brand">
                     <div className="flex items-center gap-3 lg:gap-8">
-                        <button onClick={onMenuClick} className="lg:hidden p-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-dark-hover rounded transition-colors"><Menu size={20} /></button>
+                        <button onClick={onMenuClick} className="lg:hidden p-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded transition-colors"><Menu size={20} /></button>
                         <BrandHeader />
                         {user && (
                             <nav className="hidden lg:flex items-center gap-2 ml-8" ref={dropdownRef}>
@@ -705,7 +713,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                         )}
                     </div>
                     <div className="flex items-center gap-2 sm:gap-4">
-                        <button onClick={toggleTheme} className="hidden lg:flex items-center justify-center w-10 h-10 rounded bg-slate-100 dark:bg-dark-element text-slate-600 dark:text-slate-300 hover:bg-brand hover:text-white transition-colors" title="Alternar Tema">{theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}</button>
+                        <button onClick={toggleTheme} className="hidden lg:flex items-center justify-center w-10 h-10 rounded bg-slate-100 dark:bg-[#0a0f0b] text-slate-600 dark:text-slate-300 hover:bg-brand hover:text-white transition-colors" title="Alternar Tema">{theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}</button>
                         {user && (
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-3 pl-2 cursor-pointer hover:opacity-80 transition-opacity">
@@ -713,7 +721,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                                         <p className="text-sm font-bold text-slate-800 dark:text-white leading-tight font-condensed uppercase">{user.nickname}</p>
                                         <p className="text-[10px] text-brand font-bold uppercase tracking-widest leading-tight mt-0.5">{user.role}</p>
                                     </div>
-                                    <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-100 dark:bg-dark-element rounded-full overflow-hidden flex items-center justify-center shadow-sm border border-slate-300 dark:border-slate-700">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-100 dark:bg-[#0a0f0b] rounded-full overflow-hidden flex items-center justify-center shadow-sm border border-slate-300 dark:border-white/10">
                                         <img src={getHabboAvatar(user.nickname)} alt={user.nickname} className="scale-110" onError={(e) => { (e.target).style.display = 'none'; }} />
                                     </div>
                                 </div>
@@ -761,7 +769,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                                     ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/20'
                                     : status.isClicked
                                         ? 'opacity-60'
-                                        : 'bg-slate-50/50 dark:bg-white/5 hover:bg-white dark:hover:bg-dark-element hover:shadow-sm hover:border-slate-100 dark:hover:border-white/10'
+                                        : 'bg-slate-50/50 dark:bg-white/5 hover:bg-white dark:hover:bg-[#151b17] hover:shadow-sm hover:border-slate-100 dark:hover:border-white/10'
                                 }
                     `}
                         >
@@ -918,7 +926,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                     <div className="p-4 flex flex-col md:flex-row gap-2">
                         <div className="flex-1 relative">
                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><Users size={16} /></div>
-                            <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="NICK1 / NICK2 / NICK3" className="w-full bg-slate-100 dark:bg-dark-element pl-10 pr-4 py-3 text-sm font-bold uppercase text-slate-900 dark:text-white placeholder-slate-400 outline-none border border-slate-200 dark:border-slate-700 rounded-sm focus:border-brand focus:ring-1 focus:ring-brand font-condensed tracking-wide" autoFocus />
+                            <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="NICK1 / NICK2 / NICK3" className="w-full bg-slate-100 dark:bg-[#0a0f0b] pl-10 pr-4 py-3 text-sm font-bold uppercase text-slate-900 dark:text-white placeholder-slate-400 outline-none border border-slate-200 dark:border-white/10 rounded-sm focus:border-brand focus:ring-1 focus:ring-brand font-condensed tracking-wide" autoFocus />
                         </div>
                         <button onClick={handleSend} disabled={!nickname.trim() || sendState !== 'idle'} className="px-6 py-3 md:py-0 bg-brand hover:bg-brand-hover text-white rounded-sm font-bold uppercase text-xs tracking-widest disabled:opacity-50 transition-all flex items-center justify-center min-w-[150px]">
                             {sendState === 'sending' ? (
@@ -1422,7 +1430,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
                                 <div className="space-y-3">
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block">Horário de Início</label>
-                                    <input type="datetime-local" value={formatDateTimeForInput(startTime)} onChange={(e) => setStartTime(new Date(e.target.value))} className="w-full h-12 md:h-14 px-4 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-md text-sm font-bold text-slate-700 dark:text-white focus:border-brand outline-none transition-all uppercase cursor-pointer" />
+                                    <input type="datetime-local" value={formatDateTimeForInput(startTime)} onChange={(e) => setStartTime(new Date(e.target.value))} className="w-full h-12 md:h-14 px-4 bg-slate-50 dark:bg-[#0a0f0b] border border-slate-200 dark:border-white/10 rounded-md text-sm font-bold text-slate-700 dark:text-white focus:border-brand outline-none transition-all uppercase cursor-pointer" />
                                 </div>
                             </div>
 
@@ -1430,7 +1438,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                                 <label className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest block">Aluno (Quando tiver mais de um separe com " / ")</label>
                                 <div className="relative">
                                     <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input type="text" value={students} onChange={(e) => setStudents(e.target.value)} className="w-full h-12 md:h-14 pl-12 pr-4 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-md text-sm font-bold text-slate-700 dark:text-white focus:border-brand outline-none transition-all uppercase placeholder-slate-400" placeholder="Ex: Nick1 / Nick2 / Nick3" />
+                                    <input type="text" value={students} onChange={(e) => setStudents(e.target.value)} className="w-full h-12 md:h-14 pl-12 pr-4 bg-slate-50 dark:bg-[#0a0f0b] border border-slate-200 dark:border-white/10 rounded-md text-sm font-bold text-slate-700 dark:text-white focus:border-brand outline-none transition-all uppercase placeholder-slate-400" placeholder="Ex: Nick1 / Nick2 / Nick3" />
                                 </div>
                             </div>
                         </div>
@@ -1483,14 +1491,14 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                                                             <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-2">{isAdminActivity ? 'Envio da Atividade' : 'Pontuação'}</label>
                                                             {isAdminActivity ? (
                                                                 <div className="flex flex-col gap-2">
-                                                                    <select value={individualScores[student] || 'Sim'} onChange={(e) => updateStudentData(student, 'score', e.target.value)} className="w-full h-10 px-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-md text-xs font-bold uppercase outline-none focus:border-brand cursor-pointer">
+                                                                    <select value={individualScores[student] || 'Sim'} onChange={(e) => updateStudentData(student, 'score', e.target.value)} className="w-full h-10 px-3 bg-slate-50 dark:bg-[#0a0f0b] border border-slate-200 dark:border-white/10 rounded-md text-xs font-bold uppercase outline-none focus:border-brand cursor-pointer">
                                                                         <option value="Sim">Sim</option>
                                                                         <option value="Não">Não</option>
                                                                     </select>
                                                                 </div>
                                                             ) : (
                                                                 <div className="relative">
-                                                                    <input type="number" value={individualScores[student] || ''} onChange={(e) => updateStudentData(student, 'score', e.target.value)} min="0" max={selectedType.maxScore} className="w-full h-10 px-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-md text-xs font-bold text-center outline-none focus:border-brand placeholder-slate-400" placeholder="0" />
+                                                                    <input type="number" value={individualScores[student] || ''} onChange={(e) => updateStudentData(student, 'score', e.target.value)} min="0" max={selectedType.maxScore} className="w-full h-10 px-3 bg-slate-50 dark:bg-[#0a0f0b] border border-slate-200 dark:border-white/10 rounded-md text-xs font-bold text-center outline-none focus:border-brand placeholder-slate-400" placeholder="0" />
                                                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none">/{selectedType.maxScore}</span>
                                                                 </div>
                                                             )}
@@ -1505,7 +1513,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
                                                     <div>
                                                         <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-2">Observações</label>
-                                                        <textarea value={individualComments[student] || ''} onChange={(e) => updateStudentData(student, 'comment', e.target.value)} rows={3} className="w-full p-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-md text-xs text-slate-700 dark:text-white outline-none focus:border-brand resize-none placeholder-slate-400/50 leading-relaxed" placeholder="Digite observações relevantes..." />
+                                                        <textarea value={individualComments[student] || ''} onChange={(e) => updateStudentData(student, 'comment', e.target.value)} rows={3} className="w-full p-3 bg-slate-50 dark:bg-[#0a0f0b] border border-slate-200 dark:border-white/10 rounded-md text-xs text-slate-700 dark:text-white outline-none focus:border-brand resize-none placeholder-slate-400/50 leading-relaxed" placeholder="Digite observações relevantes..." />
                                                     </div>
                                                 </div>
                                             </div>
@@ -1604,7 +1612,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                             </a>
                             <button
                                 onClick={() => setViewMode(prev => prev === 'history' ? 'ranking' : 'history')}
-                                className={`flex items-center justify-center gap-2 px-4 py-2 border rounded-sm text-xs font-bold uppercase tracking-wide transition-colors ${viewMode === 'history' ? 'bg-brand text-white border-brand hover:bg-brand-hover' : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-white hover:bg-slate-50'}`}
+                                className={`flex items-center justify-center gap-2 px-4 py-2 border rounded-sm text-xs font-bold uppercase tracking-wide transition-colors ${viewMode === 'history' ? 'bg-brand text-white border-brand hover:bg-brand-hover' : 'bg-white dark:bg-[#121813] border-slate-200 dark:border-white/10 text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-white/5'}`}
                             >
                                 {viewMode === 'history' ? <><CustomHTrophyIcon size={16} /> Ver Ranking</> : <><CustomHistoryIcon size={16} /> Ver Histórico</>}
                             </button>
@@ -1616,12 +1624,12 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                             <div className="flex flex-col md:flex-row gap-4">
                                 <div className="relative flex-1">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input type="text" placeholder="Buscar registro..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-dark-element border border-slate-200 dark:border-white/5 rounded-sm focus:outline-none focus:border-brand transition-all font-medium text-slate-700 dark:text-white placeholder-slate-400 text-sm" />
+                                    <input type="text" placeholder="Buscar registro..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-[#0a0f0b] border border-slate-200 dark:border-white/5 rounded-sm focus:outline-none focus:border-brand transition-all font-medium text-slate-700 dark:text-white placeholder-slate-400 text-sm" />
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <div className="relative flex-1">
                                         <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                        <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="w-full pl-11 pr-10 py-3 bg-slate-50 dark:bg-dark-element border border-slate-200 dark:border-white/5 rounded-sm focus:outline-none focus:border-brand transition-all font-medium text-slate-700 dark:text-white appearance-none cursor-pointer text-sm">
+                                        <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="w-full pl-11 pr-10 py-3 bg-slate-50 dark:bg-[#0a0f0b] border border-slate-200 dark:border-white/5 rounded-sm focus:outline-none focus:border-brand transition-all font-medium text-slate-700 dark:text-white appearance-none cursor-pointer text-sm">
                                             <option value="all">Todas as Aulas</option>
                                             {classTypes.map((type, idx) => (<option key={idx} value={type}>{type}</option>))}
                                         </select>
@@ -1629,7 +1637,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                                     </div>
                                     <div className="relative flex-1">
                                         <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="w-full pl-11 pr-10 py-3 bg-slate-50 dark:bg-dark-element border border-slate-200 dark:border-white/5 rounded-sm focus:outline-none focus:border-brand transition-all font-medium text-slate-700 dark:text-white appearance-none cursor-pointer text-sm">
+                                        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="w-full pl-11 pr-10 py-3 bg-slate-50 dark:bg-[#0a0f0b] border border-slate-200 dark:border-white/5 rounded-sm focus:outline-none focus:border-brand transition-all font-medium text-slate-700 dark:text-white appearance-none cursor-pointer text-sm">
                                             <option value="newest">Mais Recentes</option>
                                             <option value="oldest">Mais Antigas</option>
                                         </select>
@@ -1638,56 +1646,54 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                                 </div>
                             </div>
 
-                            <div className="bg-white dark:bg-dark-surface border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden min-h-[400px]">
+                            <div className="bg-white dark:bg-[#121813] border border-slate-200 dark:border-white/10 shadow-sm rounded-md overflow-hidden min-h-[400px]">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
-                                            <tr className="bg-slate-50 dark:bg-dark-element text-xs uppercase tracking-widest text-brand font-condensed font-bold border-b border-brand/20">
-                                                <th className="px-6 py-4 whitespace-nowrap">Data</th>
+                                            <tr className="bg-slate-50 dark:bg-[#0a0f0b] text-xs uppercase tracking-widest text-brand font-condensed font-bold border-b border-slate-200 dark:border-white/10">
+                                                <th className="px-6 py-4 whitespace-nowrap">Data e Hora</th>
                                                 <th className="px-6 py-4">Aula/Curso</th>
                                                 <th className="px-6 py-4">Professor(a)</th>
                                                 <th className="px-6 py-4">Aluno(s)</th>
                                                 <th className="px-6 py-4 text-center">Status</th>
-                                                <th className="px-6 py-4 text-center">Nota/Envio de MP</th>
                                             </tr>
                                         </thead>
                                         <tbody className="text-sm font-medium">
                                             {filteredHistory.length > 0 ? (
                                                 filteredHistory.map((entry, index) => {
                                                     const isApproved = entry.verdict.toLowerCase().includes('aprovado');
-                                                    const hasMp = entry.mpSent && (entry.mpSent.toLowerCase() === 'sim' || entry.mpSent.toLowerCase() === 'não');
-                                                    const scoreDisplay = entry.score || (hasMp ? entry.mpSent : '-');
+                                                    const isReproved = entry.verdict.toLowerCase().includes('reprovado');
 
                                                     return (
-                                                        <tr key={index} className="group hover:bg-slate-50 dark:hover:bg-dark-hover transition-colors border-b border-slate-100 dark:border-white/5 last:border-0">
+                                                        <tr key={index} className="group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b border-slate-100 dark:border-white/5 last:border-0">
                                                             <td className="px-6 py-4 text-slate-500 whitespace-nowrap font-mono text-xs">
-                                                                <div className="flex flex-col">
-                                                                    <div className="flex items-center gap-2"><CalendarDays size={12} className="text-brand" />{entry.endTime.split(' ')[0]}</div>
-                                                                    <div className="flex items-center gap-2 mt-1 opacity-70"><Clock size={12} />{entry.endTime.split(' ')[1]}</div>
+                                                                <div className="flex flex-col gap-1.5">
+                                                                    <div className="flex items-center gap-2" title="Término"><CalendarDays size={12} className="text-brand" /> {entry.endTime}</div>
+                                                                    {entry.startTime && <div className="flex items-center gap-2 opacity-70" title="Início"><Clock size={12} /> {entry.startTime}</div>}
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4 text-slate-800 dark:text-slate-200">
                                                                 <div className="flex flex-col">
                                                                     <span className="font-bold font-condensed uppercase tracking-wide text-xs">{entry.className}</span>
-                                                                    {hasMp && (<span className="text-[10px] text-brand flex items-center gap-1 mt-0.5"><FileCheck size={10} /> Atividade</span>)}
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4 text-slate-600 dark:text-slate-300 font-condensed uppercase text-xs font-bold">{entry.professor}</td>
-                                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400 max-w-[200px] truncate" title={entry.students}>{entry.students}</td>
+                                                            <td className={`px-6 py-4 max-w-[200px] truncate font-bold uppercase tracking-wide text-xs ${isApproved ? 'text-green-600 dark:text-green-400' : isReproved ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400'}`} title={entry.students}>
+                                                                {entry.students}
+                                                            </td>
                                                             <td className="px-6 py-4">
                                                                 <div className="flex justify-center">
-                                                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 border text-[10px] font-bold uppercase tracking-widest ${isApproved ? 'text-green-700 bg-green-50 border-green-200' : 'text-red-700 bg-red-50 border-red-200'}`}>
+                                                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 border text-[10px] font-bold uppercase tracking-widest rounded-sm ${isApproved ? 'text-green-700 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'text-red-700 bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'}`}>
                                                                         {isApproved ? <CheckCircle size={10} /> : <XCircle size={10} />}{entry.verdict}
                                                                     </span>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-6 py-4 text-center font-bold font-mono text-slate-700 dark:text-white">{scoreDisplay}</td>
                                                         </tr>
                                                     );
                                                 })
                                             ) : (
                                                 <tr>
-                                                    <td colSpan={6} className="px-6 py-20 text-center text-slate-400 uppercase font-condensed tracking-widest">Nenhum registro encontrado.</td>
+                                                    <td colSpan={5} className="px-6 py-20 text-center text-slate-400 uppercase font-condensed tracking-widest">Nenhum registro encontrado.</td>
                                                 </tr>
                                             )}
                                         </tbody>
@@ -1698,11 +1704,11 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                     )}
 
                     {viewMode === 'ranking' && (
-                        <div className="bg-white dark:bg-dark-surface border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden min-h-[400px]">
+                        <div className="bg-white dark:bg-[#121813] border border-slate-200 dark:border-white/10 shadow-sm rounded-md overflow-hidden min-h-[400px]">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="bg-slate-50 dark:bg-dark-element text-xs uppercase tracking-widest text-brand font-condensed font-bold border-b border-brand/20">
+                                        <tr className="bg-slate-50 dark:bg-[#0a0f0b] text-xs uppercase tracking-widest text-brand font-condensed font-bold border-b border-slate-200 dark:border-white/10">
                                             {ranking.headers.length > 0 ? (
                                                 ranking.headers.map((header, idx) => (
                                                     <th key={idx} className="px-6 py-4 whitespace-nowrap">{header}</th>
@@ -1717,7 +1723,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                                             ranking.data.map((row, idx) => {
                                                 const isCurrentUserRow = currentUser && row.some(cell => typeof cell === 'string' && cell.trim().toLowerCase() === currentUser.nickname.trim().toLowerCase());
                                                 return (
-                                                    <tr key={idx} className={`group transition-colors border-b border-slate-100 dark:border-white/5 last:border-0 ${isCurrentUserRow ? 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30' : 'hover:bg-slate-50 dark:hover:bg-dark-hover'}`}>
+                                                    <tr key={idx} className={`group transition-colors border-b border-slate-100 dark:border-white/5 last:border-0 ${isCurrentUserRow ? 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}>
                                                         {row.map((cell, cIdx) => {
                                                             const isNameCell = typeof cell === 'string' && currentUser && cell.trim().toLowerCase() === currentUser.nickname.trim().toLowerCase();
                                                             return (
@@ -2597,10 +2603,10 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
                                         {/* Card 1 - Dynamic */}
-                                        <div onClick={() => setCurrentView(quickAccessConfig.card1.id)} className="relative bg-white dark:bg-dark-surface p-8 border border-slate-200 dark:border-white/5 shadow-folder cursor-pointer group overflow-hidden transition-all duration-300 hover:-translate-y-1 rounded-sm">
+                                        <div onClick={() => setCurrentView(quickAccessConfig.card1.id)} className="relative bg-white dark:bg-[#121813] p-8 border border-slate-200 dark:border-white/5 shadow-folder cursor-pointer group overflow-hidden transition-all duration-300 hover:-translate-y-1 rounded-sm">
                                             <div className={`absolute top-0 left-0 w-1 h-full ${quickAccessConfig.card1.color} group-hover:w-2 transition-all`}></div>
                                             <div className="mb-8 flex justify-between items-start">
-                                                <div className="p-3 bg-slate-100 dark:bg-dark-element rounded-sm group-hover:bg-slate-200 dark:group-hover:bg-white/10 transition-colors">
+                                                <div className="p-3 bg-slate-100 dark:bg-[#0a0f0b] rounded-sm group-hover:bg-slate-200 dark:group-hover:bg-white/10 transition-colors">
                                                     {quickAccessConfig.card1.iconImg ?
                                                         <img src={quickAccessConfig.card1.iconImg} className="w-8 h-8 object-contain mb-0" alt={quickAccessConfig.card1.title} />
                                                         :
@@ -2614,10 +2620,10 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                                         </div>
 
                                         {/* Card 2 - Dynamic */}
-                                        <div onClick={() => setCurrentView(quickAccessConfig.card2.id)} className="relative bg-white dark:bg-dark-surface p-8 border border-slate-200 dark:border-white/5 shadow-folder cursor-pointer group overflow-hidden transition-all duration-300 hover:-translate-y-1 rounded-sm">
+                                        <div onClick={() => setCurrentView(quickAccessConfig.card2.id)} className="relative bg-white dark:bg-[#121813] p-8 border border-slate-200 dark:border-white/5 shadow-folder cursor-pointer group overflow-hidden transition-all duration-300 hover:-translate-y-1 rounded-sm">
                                             <div className={`absolute top-0 left-0 w-1 h-full ${quickAccessConfig.card2.color} group-hover:w-2 transition-all`}></div>
                                             <div className="mb-8 flex justify-between items-start">
-                                                <div className="p-3 bg-slate-100 dark:bg-dark-element rounded-sm group-hover:bg-slate-800 transition-colors">
+                                                <div className="p-3 bg-slate-100 dark:bg-[#0a0f0b] rounded-sm group-hover:bg-slate-800 transition-colors">
                                                     {quickAccessConfig.card2.iconImg ?
                                                         <img src={quickAccessConfig.card2.iconImg} className="w-8 h-8 object-contain mb-0" alt={quickAccessConfig.card2.title} />
                                                         :
@@ -2738,7 +2744,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
                                     <div className="w-full mx-auto">
                                         {contentLoading ? (
-                                            <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-dark-element border border-slate-200 dark:border-slate-700 shadow-sm rounded-sm">
+                                            <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-[#0a0f0b] border border-slate-200 dark:border-slate-700 shadow-sm rounded-sm">
                                                 <Loader2 className="animate-spin text-brand mb-4" size={48} />
                                                 <span className="font-condensed font-bold uppercase tracking-widest text-slate-400 text-sm">Descriptografando Script...</span>
                                             </div>
