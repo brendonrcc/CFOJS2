@@ -1289,7 +1289,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                             "Professor(a)": professor.nickname,
                             "Aluno(a)": student,
                             "Envio da atividade": activitySent,
-                            "Comentários/Observações": individualComments[student] || 'Sem observações.',
+                            "Comentários/Observações": individualComments[student] || '',
                             "Status": statusFinal,
                             "Pontuação": finalScore
                         };
@@ -1881,7 +1881,7 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                     return;
                 }
 
-                let reasons = "Sem observações.";
+                let reasons = "";
                 if (!approved && result.missing.length > 0) {
                     const missingNames = result.missing;
                     if (missingNames.length === 1) reasons = `Faltou utilizar: ${missingNames[0]}.`;
