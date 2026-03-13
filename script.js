@@ -1926,7 +1926,22 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
                 setPostingForum(true);
 
                 const status = result.approved ? 'Aprovado' : 'Reprovado';
-                const motivo = result.approved ? 'Cumpriu os requisitos.' : 'Não cumpriu os requisitos.';
+                
+                let motivo = 'Cumpriu os requisitos.';
+                if (!result.approved) {
+                    if (result.missing && result.missing.length > 0) {
+                        const missingNames = result.missing.map(n => n.toLowerCase());
+                        if (missingNames.length === 1) {
+                            motivo = `Não cumpriu os requisitos, uma vez que não inseriu o(a): ${missingNames[0]}.`;
+                        } else {
+                            const last = missingNames[missingNames.length - 1];
+                            const rest = missingNames.slice(0, -1);
+                            motivo = `Não cumpriu os requisitos, uma vez que não inseriu o(a): ${rest.join(', ')} e ${last}.`;
+                        }
+                    } else {
+                        motivo = 'Não cumpriu os requisitos.';
+                    }
+                }
 
                 const message = `[font=Poppins][center][color=#528c16][b]RESULTADO DA ATIVIDADE[/b][/color][/center]
 
